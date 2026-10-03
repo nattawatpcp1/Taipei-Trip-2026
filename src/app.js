@@ -10,17 +10,27 @@ const persist=()=>{$('storage-status').textContent=save(storage,state)?'บั�
 function el(tag,text,className) {const n=document.createElement(tag); if(text!==undefined)n.textContent=text; if(className)n.className=className; return n;}
 function mapLink(query) {const a=el('a','เปิด Maps ↗','map');a.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(query);a.target='_blank';a.rel='noopener noreferrer';return a;}
 $('party').textContent=trip.party;
+function externalLink(url,text='เว็บไซต์ทางการ ↗') {const a=el('a',text,'map');a.href=url;a.target='_blank';a.rel='noopener noreferrer';return a;}
+function listCard(title,items) {const card=el('section',undefined,'card');card.append(el('h3',title));const list=el('ul');items.forEach(text=>list.append(el('li',text)));card.append(list);return card;}
+trip.bookings.forEach(b=>{const card=el('article',undefined,'card');card.append(el('h3',b.title),el('p',b.detail),el('p',b.note,'muted'));if(b.map)card.append(mapLink(b.map));card.append(externalLink(b.url));$('bookings').append(card);});
+trip.sources.forEach(s=>{const card=el('article',undefined,'card source');card.append(externalLink(s.url,s.title+' ↗'),el('p',s.note,'muted'));$('sources').append(card);});
 function renderPlan(){
   $('days').replaceChildren();
   trip.days.forEach((d,i)=>{const b=el('button');b.append(el('small','DAY '+(i+1)),el('b',d.id.slice(8)+' ต.ค.'));b.setAttribute('aria-pressed',String(state.day===d.id));b.onclick=()=>{state.day=d.id;persist();renderPlan();};$('days').append(b);});
   const d=trip.days.find(d=>d.id===state.day), panel=$('itinerary');panel.replaceChildren();
   $('rain').setAttribute('aria-pressed',String(state.rain));$('rain').textContent=state.rain?'☂ แผนฝนตกเปิดอยู่':'☂ ใช้แผนฝนตก';
-  const head=el('div',undefined,'day-head');head.append(el('p',d.area,'eyebrow'),el('h2',d.title));panel.append(head);
+  const head=el('div',undefined,'day-head');head.append(el('p',d.area,'eyebrow'),el('h2',d.title),el('p',d.energy,'energy'));panel.append(head);
   const family=el('div',undefined,'family');family.append(el('b','พักได้เสมอ'),el('p',d.kid));panel.append(family);
   if(state.rain){const r=el('div',undefined,'card rain-card');r.append(el('h3','แผนสำรองเมื่อฝนตก'),el('p',d.rain),el('small','ตรวจพยากรณ์และประกาศผู้ให้บริการก่อนปรับแผน ไม่มีข้อมูลอากาศสดในแอป'));panel.append(r);}
   const timeline=el('div',undefined,'timeline');
-  timeline.append(el('p',state.rain?'เส้นทางเดิมสำหรับอ้างอิง — ใช้แผนสำรองด้านบนเมื่อฝนตก':'กรอบเวลาโดยประมาณ ปรับตามพลังเด็กและการเดินทาง','muted'));
-  d.stops.forEach(s=>{const c=el('article',undefined,'stop');const detail=el('div');detail.append(el('h3',s.title),el('p',s.note));if(s.map)detail.append(mapLink(s.map));c.append(el('span',s.time,'time'),detail);timeline.append(c);});panel.append(timeline);
+  timeline.append(el('p',state.rain?'กำลังแสดงไทม์ไลน์แผนฝน • เส้นทางเดิมดูได้เมื่อปิดปุ่มแผนฝน':'กรอบเวลาโดยประมาณ ปรับตามพลังเด็กและการเดินทาง','muted'));
+  (state.rain?d.rainStops:d.stops).forEach(s=>{const c=el('article',undefined,'stop');const detail=el('div');detail.append(el('h3',s.title),el('p',s.note));if(s.map)detail.append(mapLink(s.map));c.append(el('span',s.time,'time'),detail);timeline.append(c);});panel.append(timeline);
+  const cut=el('div',undefined,'family cut');cut.append(el('b','ถ้าเหนื่อย ตัดตรงนี้'),el('p',d.cut));panel.append(cut);
+  const grid=el('div',undefined,'detail-grid');
+  const route=el('section',undefined,'card');route.append(el('h3','เดินทางอย่างไร'),el('p',state.rain?'เส้นทางต่อไปนี้เป็นแผนหลัก ให้ปรับตามไทม์ไลน์ฝนด้านบน':'เส้นทางแผนหลัก • เผื่อเวลาเดิน รอรถ และลิฟต์','muted'));
+  d.transport.forEach(([title,note])=>{const item=el('div',undefined,'detail-item');item.append(el('h4',title),el('p',note));route.append(item);});grid.append(route);
+  const food=el('section',undefined,'card');food.append(el('h3','อาหารและร้านสำรอง'),el('p','เลือกร้านที่มีที่นั่งและคิวเหมาะกับครอบครัว ไม่ได้จองร้านหรือยืนยันเวลาเปิดแต่ละร้าน','muted'));
+  d.meals.forEach(([time,title,note,map])=>{const item=el('div',undefined,'detail-item');item.append(el('small',time,'meal-tag'),el('h4',title),el('p',note));if(map)item.append(mapLink(map));food.append(item);});grid.append(food);panel.append(grid,listCard('เตรียมก่อนออกวันนี้',d.prepare));
 }
 $('rain').onclick=()=>{state.rain=!state.rain;persist();renderPlan();};renderPlan();
 document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-view]').forEach(x=>{const active=x===b;x.setAttribute('aria-pressed',String(active));$(x.dataset.view).hidden=!active;});});

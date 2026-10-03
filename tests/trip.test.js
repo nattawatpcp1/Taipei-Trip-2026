@@ -15,3 +15,17 @@ test('corrupt or blocked storage does not break app',()=>{
  assert.deepEqual(load({getItem:()=>'{bad'},fallback),fallback);
  assert.equal(save({setItem(){throw Error('quota');}},{}),false);
 });
+
+test('every day offers a distinct rain itinerary and usable family details',()=>{
+ assert.equal(trip.days.length,5);
+ for (const day of trip.days) {
+  assert.ok(day.rainStops.length>=2);
+  assert.notDeepEqual(day.rainStops,day.stops);
+  assert.ok(day.transport.length>=2);
+  assert.ok(day.meals.length>=2);
+  assert.ok(day.prepare.length>=3);
+  assert.ok(day.cut.length>0);
+  for(const stop of [...day.stops,...day.rainStops]) assert.ok(stop.time&&stop.title&&stop.note);
+ }
+ for(const source of trip.sources) assert.equal(new URL(source.url).protocol,'https:');
+});
