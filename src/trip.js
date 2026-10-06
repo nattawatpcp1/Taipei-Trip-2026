@@ -1,5 +1,5 @@
 export const trip = {
-  "version": "5.4.1",
+  "version": "5.4.2",
   "timezone": "Asia/Taipei",
   "start": "2026-10-10",
   "end": "2026-10-14",

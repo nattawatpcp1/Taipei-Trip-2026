@@ -1,4 +1,4 @@
-const CACHE = 'taipei-v5.4.1';
+const CACHE = 'taipei-v5.4.2';
 const ROOT = new URL('./',self.location.href);
 const ASSETS = ['./','index.html','src/app.js','src/trip.js','src/state.js','src/styles.css','public/icon.svg','public/manifest.webmanifest'].map(p=>new URL(p,ROOT).href);
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))));
