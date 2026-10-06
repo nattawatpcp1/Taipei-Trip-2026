@@ -7,3 +7,10 @@
 - v5.4.0 GitHub Pages deployment was successful. v5.4.1 deployment is checked after merge; inspect GitHub Actions for the latest result.
 
 Before travel, open the app on the actual phone/iPad, check all tabs, then reload in airplane mode after the first online visit. Maps and external provider pages require a connection.
+
+## v5.4.2 · 6 October 2026
+
+- PASS: all 5 existing behavior tests, static build, git diff --check.
+- Mobile CSS uses 2-column tabs, single-column timelines, single-column cards below 760px, 44px controls and 16px numeric input. Zoom remains enabled.
+- Added Home Screen instructions using Apple and Google support documentation.
+- Actual phone viewport / iOS installation has not been tested in this environment.
